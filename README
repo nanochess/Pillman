@@ -22,6 +22,10 @@ It's compatible with 8088 (the original IBM PC). So you now have
 to look for a 8-bit compatible VGA card if you want to run it in
 original hardware ;)
 
+A small video of the game running under emulation:
+
+  https://www.youtube.com/watch?v=ALBgsXOq11o
+
 If you want to assemble it, you must download the Netwide Assembler
 (nasm) from www.nasm.us
 
