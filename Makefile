@@ -1,24 +1,24 @@
 # Makefile contributed by jtsiomb
 
-src = invaders.asm
+src = pillman.asm
 
 .PHONY: all
-all: invaders.img invaders.com
+all: pillman.img pillman.com
 
-invaders.img: $(src)
+pillman.img: $(src)
 	nasm -f bin -o $@ $(src)
 
-invaders.com: $(src)
+pillman.com: $(src)
 	nasm -f bin -o $@ -Dcom_file=1 $(src)
 
 .PHONY: clean
 clean:
-	$(RM) invaders.img invaders.com
+	$(RM) pillman.img pillman.com
 
 .PHONY: rundosbox
-rundosbox: invaders.com
+rundosbox: pillman.com
 	dosbox $<
 
 .PHONY: runqemu
-runqemu: invaders.img
-	qemu-system-i386 -fda invaders.img
+runqemu: pillman.img
+	qemu-system-i386 -fda pillman.img
