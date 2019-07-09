@@ -337,10 +337,7 @@ move_ghost:
         ; al = sprite (x8)
         ; di = Target address
 draw_sprite:
-        push ax
-        push bx
-        push cx
-        push di
+        db 0x60                 ; (pusha)
 ds0:    push ax
         mov bx,bitmaps-8
         cs xlat                 ; Extract one byte from bitmap
@@ -366,10 +363,7 @@ ds4:
         inc ax                  ; Next bitmap byte
         test al,7               ; Sprite complete?
         jne ds0                 ; No, jump
-        pop di
-        pop cx
-        pop bx
-        pop ax
+        db 0x61                 ; (popa)
         ret
 
     %if com_file
