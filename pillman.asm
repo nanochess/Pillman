@@ -2,6 +2,9 @@
         ; Pillman
         ;
         ; by Oscar Toledo G.
+        ; http://nanochess.org/
+        ;
+        ; (c) Copyright 2019 Oscar Toledo G.
         ;
         ; Creation date: Jun/11/2019.
         ; Revision date: Jun/12/2019. Draws level.
