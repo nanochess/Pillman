@@ -210,7 +210,7 @@ ms6:    cmp al,[y_player]       ; Compare Y coordinate with player
         jc ms8                  ; Jump if Y ghost < Y player
         mov al,0x01             ; Go up
 ms8:
-        test ah,al              ; Can it go in wanted direction?
+        test ah,al              ; Can it go in intended direction?
         jne ms1                 ; Yes, go in direction
 
         mov al,bl

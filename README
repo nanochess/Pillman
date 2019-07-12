@@ -19,7 +19,7 @@ run.
 Move with arrow keys.
 
 It's compatible with 8088 (the original IBM PC). So you now have
-to look for a 8-bit compatible VGA card if you want to run it in
+to look for a 8-bit compatible VGA card if you want to run it over
 original hardware ;)
 
 A small video of the game running under emulation:
