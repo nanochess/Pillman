@@ -14,6 +14,9 @@
         ;                             trash.
         ; Revision date: Jun/15/2019. Ghosts can catch pillman. Optimized.
         ;                             509 bytes.
+        ; Revision date: Jul/09/2019. Self-modifying code, move subroutine,
+        ;                             cache routine address (Peter Ferrie).
+        ;                             504 bytes.
         ;
 
         cpu 8086
@@ -26,7 +29,7 @@ base:           equ 0xf9fe      ; Memory base (same segment as video)
 intended_dir:   equ base+0x00   ; Next direction for player
 frame:          equ base+0x01   ; Current video frame
 x_player:       equ base+0x02   ; Saved X-coordinate of player
-y_player:       equ base+0x04   ; Saved Y-coordinate of player
+y_player:       equ ms6+0x01    ; Saved Y-coordinate of player
 old_time:       equ base+0x06   ; Old time
 
         ;
@@ -84,6 +87,62 @@ dm1:    call draw_sprite        ; Draw tile
         sub di,bx               ; Restore position
         sub di,8                ; Advance tile
         jmp draw_maze_col       ; Repeat until finished
+
+        ;
+        ; Move ghost
+        ; bh = color
+        ;
+move_ghost:
+        lodsw                   ; Load screen position
+        xchg ax,di
+        lodsw                   ; Load direction
+        test ah,ah
+        xchg ax,bx              ; Color now in ah
+        mov al,0x30
+        push ax
+        mov byte [si-1],0x02    ; Remove first time setup flag
+        call move_sprite3
+        pop ax
+        ;
+        ; Draw the sprite/tile
+        ;
+        ; ah = sprite color
+        ; al = sprite (x8)
+        ; di = Target address
+draw_sprite:
+        push ax
+        push bx
+        push cx
+        push di
+ds0:    push ax
+        mov bx,bitmaps-8
+        cs xlat                 ; Extract one byte from bitmap
+        xchg ax,bx
+        mov cx,8               
+ds1:    mov al,bh
+        shl bl,1                ; Extract one bit 
+        jc ds2
+        xor ax,ax               ; Background color
+ds2:
+        cmp bh,0x10             ; Color < 0x10
+        jc ds4                  ; Yes, jump
+        cmp byte [di],PLAYER_COLOR      ; "Eats" player?
+        je restart              ; Yes, it should crash after several hundred games
+ds3:
+        xor al,[di]             ; XOR ghost again pixel
+ds4:
+        stosb
+        loop ds1
+        add di,X_OFFSET-8       ; Go to next video line
+        pop ax
+        inc ax                  ; Next bitmap byte
+        test al,7               ; Sprite complete?
+        jne ds0                 ; No, jump
+        pop di
+        pop cx
+        pop bx
+        pop ax
+        ret
 
 dm2:   
         add di,X_OFFSET*8-15*8  ; Go to next row
@@ -146,14 +205,15 @@ close_mouth:
         ;
         ; Move ghosts
         ;
+        mov bp, move_ghost
         mov bh,GHOST1_COLOR
-        call move_ghost
+        call bp
         mov bh,GHOST2_COLOR
-        call move_ghost
+        call bp
         mov bh,GHOST3_COLOR
-        call move_ghost
+        call bp
         mov bh,GHOST4_COLOR
-        call move_ghost
+        call bp
         jmp game_loop           
 
         ;
@@ -205,7 +265,7 @@ move_sprite:
         jmp ms8
 
         ; Current direction is left/right
-ms6:    cmp al,[y_player]       ; Compare Y coordinate with player
+ms6:    cmp al,0x00             ; (SMC) Compare Y coordinate with player
         mov al,0x04             ; Go down
         jc ms8                  ; Jump if Y ghost < Y player
         mov al,0x01             ; Go up
@@ -226,7 +286,7 @@ ms9:    test ah,al              ; Can it go in current direction?
         ;
 ms4:
         mov [x_player],dx       ; Save current X coordinate
-        mov [y_player],al       ; Save current Y coordinate
+        cs mov [y_player],al    ; Save current Y coordinate
 
         mov al,[intended_dir]
         test ah,al              ; Can it go in intended direction?
@@ -314,63 +374,6 @@ dirs:
         db 0x00
         db 0x00
         db 0x04         ; 0x50 = Down arrow
-
-        ;
-        ; Move ghost
-        ; bh = color
-        ;
-move_ghost:
-        lodsw                   ; Load screen position
-        xchg ax,di
-        lodsw                   ; Load direction
-        test ah,ah
-        xchg ax,bx              ; Color now in ah
-        mov al,0x30
-        push ax
-        mov byte [si-1],0x02    ; Remove first time setup flag
-        call move_sprite3
-        pop ax
-        ;
-        ; Draw the sprite/tile
-        ;
-        ; ah = sprite color
-        ; al = sprite (x8)
-        ; di = Target address
-draw_sprite:
-        push ax
-        push bx
-        push cx
-        push di
-ds0:    push ax
-        mov bx,bitmaps-8
-        cs xlat                 ; Extract one byte from bitmap
-        xchg ax,bx
-        mov cx,8               
-ds1:    mov al,bh
-        shl bl,1                ; Extract one bit 
-        jc ds2
-        xor ax,ax               ; Background color
-ds2:
-        cmp bh,0x10             ; Color < 0x10
-        jc ds4                  ; Yes, jump
-        cmp byte [di],PLAYER_COLOR      ; "Eats" player?
-        jne ds3                 ; No, jump
-        jmp restart             ; It should crash after several hundred games
-ds3:
-        xor al,[di]             ; XOR ghost again pixel
-ds4:
-        stosb
-        loop ds1
-        add di,X_OFFSET-8       ; Go to next video line
-        pop ax
-        inc ax                  ; Next bitmap byte
-        test al,7               ; Sprite complete?
-        jne ds0                 ; No, jump
-        pop di
-        pop cx
-        pop bx
-        pop ax
-        ret
 
     %if com_file
     %else
