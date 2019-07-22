@@ -16,7 +16,7 @@ This a game about a yellow man eating pills in 512 bytes. It can be
 run as a COM file or put into a boot sector of a floppy disk to be
 run.
 
-Move with arrow keys.
+Move with arrow keys, press Esc to exit (only COM file).
 
 It's compatible with 8088 (the original IBM PC). So you now have
 to look for a 8-bit compatible VGA card if you want to run it over

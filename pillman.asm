@@ -17,6 +17,7 @@
         ; Revision date: Jul/09/2019. Self-modifying code, move subroutine,
         ;                             cache routine address (Peter Ferrie).
         ;                             504 bytes.
+        ; Revision date: Jul/22/2019. Added Esc key to exit.
         ;
 
         cpu 8086
@@ -179,6 +180,10 @@ game_loop:
         int 0x16
 no_key:
         mov al,ah
+        cmp al,0x01             ; Esc key
+        jne no_esc
+        int 0x20
+no_esc:
         sub al,0x48             ; Code for arrow up?
         jc no_key2              ; Out of range, jump.
         cmp al,0x09             ; Farther than arrow down?
