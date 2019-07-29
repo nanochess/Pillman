@@ -222,7 +222,7 @@ close_mouth:
         jmp game_loop           
 
         ;
-        ; DI = address on screen
+        ; DI = address on the screen
         ; BL = wanted direction
         ;
 move_sprite3:        
@@ -313,7 +313,7 @@ ms3:
         neg bx                  ; Reverse direction
 ms7:
         add di,bx               ; Do move
-        mov [si-4],di           ; Save new position on screen
+        mov [si-4],di           ; Save the new screen position
 ms2:
         ret
 
